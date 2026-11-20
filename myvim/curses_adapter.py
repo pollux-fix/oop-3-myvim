@@ -29,6 +29,7 @@ class CursesAdapter(IInput, IRenderTarget):
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
         curses.init_pair(2, curses.COLOR_YELLOW, -1)
         curses.init_pair(3, curses.COLOR_RED, -1)
+        curses.init_pair(4, curses.COLOR_CYAN, -1)
 
     # IInput
     def get_key(self) -> int:
@@ -69,4 +70,9 @@ class CursesAdapter(IInput, IRenderTarget):
     def attr_message(self) -> int:
         if self._has_colors:
             return curses.color_pair(3)
+        return curses.A_BOLD
+    
+    def attr_keyword(self) -> int:
+        if self._has_colors:
+            return curses.color_pair(4) | curses.A_BOLD
         return curses.A_BOLD

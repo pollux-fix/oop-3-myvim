@@ -5,7 +5,7 @@ from enum import Enum
 
 from .commands import CommandContext, CommandRegistry
 from .interfaces import IInput, IRenderer
-
+from .history import CommandHistory
 
 class Mode(Enum):
     NORMAL = "NORMAL"
@@ -223,6 +223,7 @@ class EditorController:
             self.command_buffer = ""
             self.mode = Mode.NORMAL
             if cmd:
+                CommandHistory().add(cmd)
                 self.registry.execute(cmd, self.ctx)
             return
         if key in (8, 127, curses.KEY_BACKSPACE):

@@ -3,6 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from .history import CommandHistory
+
 
 class CommandContext:
     """Всё, что нужно команде: модель + управление контроллером."""
@@ -26,6 +28,32 @@ class AbstractExCommand(ABC):
 
     @abstractmethod
     def execute(self, cmd: str, ctx: CommandContext) -> None: ...
+
+
+class ToggleNumbersCommand(AbstractExCommand):
+    def matches(self, cmd: str) -> bool:
+        return cmd == "set num"
+    
+    def execute(self, cmd: str, ctx: CommandContext) -> None:
+        ctx.model.number_lines()
+
+class SyntaxHighlightCommand(AbstractExCommand):
+    def matches(self, cmd: str) -> bool:
+        return cmd == "sy"
+
+    def execute(self, cmd: str, ctx: CommandContext) -> None:
+        ctx.model.toggle_syntax_highlight()
+
+class HistoryCommand(AbstractExCommand):
+    def matches(self, cmd: str) -> bool:
+        return cmd == "history"
+
+    def execute(self, cmd: str, ctx: CommandContext) -> None:
+        hist = CommandHistory().get_last(5)
+        if not hist:
+            ctx.model.message = "History is empty"
+        else:
+            ctx.model.message = "History: " + " | ".join(hist)
 
 
 #   конкретные команды  
@@ -170,11 +198,16 @@ def create_default_registry() -> CommandRegistry:
     reg.register(WriteQuitCommand())
     reg.register(SaveAsCommand())
     reg.register(OpenCommand())
+
     reg.register(ToggleNumbersCommand())
+    reg.register(SyntaxHighlightCommand())
+    reg.register(HistoryCommand())
+
     reg.register(SaveCommand())
     reg.register(QuitCommand())
     reg.register(ReloadCommand())
     reg.register(GotoLineCommand())
     reg.register(HelpCommand())
+
     reg.register(SyntaxHighlightStub())
     return reg

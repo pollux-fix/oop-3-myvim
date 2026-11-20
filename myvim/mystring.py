@@ -48,3 +48,32 @@ class MyString:
 
     def find(self, sub, start: int = 0) -> int:
         return self._s.find(str(sub), start)
+    
+
+class SyntaxHighlightDecorator(MyString):
+    """ Паттерн Декоратор для подсветки синтаксиса"""
+    def __init__(self, wrapped: MyString):
+        super().__init__(wrapped.to_py())
+        self._wrapped = wrapped
+
+    def get_tokens(self) -> list[tuple[str, bool]]:
+        """Возврат списка: явл ли текст ключевым словом"""
+        keywords = {"def", "class", "return", "if", "else", 
+                    "for", "while", "print", "int", "void", 
+                    "import", "from"}
+        text = self._wrapped.to_py()
+        tokens = []
+        current = ""
+
+        for ch in text:
+            if ch.isalnum() or ch == "_":
+                current += ch
+            else:
+                if current:
+                    tokens.append((current, current in keywords))
+                    current = ""
+                tokens.append((ch, False))
+        if current:
+            tokens.append((current, current in keywords))
+
+        return tokens

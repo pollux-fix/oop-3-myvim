@@ -48,17 +48,34 @@ class EditorView(IRenderer):
 
         for sy in range(text_h):
             dr = self._top + sy
-            if dr >= len(lines):
+            if dr >= model.buffer.line_count():
                 break
-            line = lines[dr]
+
+            # line = lines[dr]
+            line_obj = model.get_line_obj(dr)
             x = 0
             if model.show_numbers:
                 prefix = f"{dr + 1:>4} "
                 t.addstr(sy, 0, prefix, t.attr_lineno())
                 x = len(prefix)
+
             avail2 = max(0, w - x)
             if avail2 > 0:
-                t.addstr(sy, x, line[self._left:self._left + avail2])
+                # Если включена подсветка (объект имеет метод get_tokens)
+                if hasattr(line_obj, 'get_tokens'):
+                    tokens = line_obj.get_tokens()
+                    curr_x = x
+
+                    for text_chunk, is_keyword in tokens:
+                        if curr_x - x >= avail2: break
+                        
+                        attr = t.attr_keyword() if is_keyword else 0
+                        chunk = text_chunk[:avail2 - (curr_x - x)]
+                        t.addstr(sy, curr_x, chunk, attr)
+                        curr_x += len(chunk)
+                else:
+                    # Обычная отрисовка без подсветки
+                    t.addstr(sy, x, line_obj.to_py()[self._left:self._left + avail2])
 
         # статус-строка
         status_y = h - 1

@@ -5,7 +5,7 @@ from typing import Any, List, Optional, Tuple
 from .buffer import TextBuffer
 from .file_service import FileService
 from .interfaces import IFileService, ISearchService, ITextBuffer, IUndoService
-from .mystring import MyString
+from .mystring import MyString, SyntaxHighlightDecorator
 from .search import SearchEngine
 from .undo import UndoManager
 from .yank import YankBuffer
@@ -39,6 +39,7 @@ class EditorModel:
         self.filename: Optional[str] = None
         self.modified = False
         self.show_numbers = False
+        self.highlight_syntax = False
 
         self.last_search = ""
         self.last_search_forward = True
@@ -382,9 +383,34 @@ class EditorModel:
         self.row = self.col = 0
         self.filename = None
         self.modified = False
-        self.undo_manager.clear() # ИЗМЕНЕНО
+        self.undo_manager.clear()
         self.message = "Cleared"
 
     def toggle_numbers(self) -> None:
         self.show_numbers = not self.show_numbers
         self.message = f"Line numbers: {'on' if self.show_numbers else 'off'}"
+
+    """ Дополнительные задания 1-3"""
+
+    def toggle_syntax_highlight(self) -> None:
+        """ Включение / выключение подсветки (доп 2)"""
+        self.highlight_syntax = not self.highlight_syntax
+        self.message = f"Syntax highlight: {'on' if self.highlight_syntax else 'off'}"
+
+    def number_lines(self) -> None:
+        """ Нумерация строк с сохранением (доп 1)"""
+        self._push_undo()
+        for i in range(self.buffer.line_count()):
+            text = self.buffer.get_line(i)
+            prefix = f"{i + 1:>4} "
+            if not text.startswith(prefix):
+                self.buffer.set_line(i, prefix + text)
+        self.modified = True
+        self.message = "Lines numbered"
+
+    def get_line_obj(self, row: int) -> MyString:
+        """Возврат строки в декораторе, если вкл подсветка"""
+        obj = self.buffer.get_line_obj(row) if hasattr(self.buffer, 'get_line_obj') else MyString(self.buffer.get_line(row))
+        if self.highlight_syntax:
+            return SyntaxHighlightDecorator(obj)
+        return obj

@@ -1,3 +1,7 @@
+def init():
+    for i in range():
+        text 124
+
 тестовый файл 
 
 1ertyui234567890

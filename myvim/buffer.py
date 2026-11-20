@@ -17,6 +17,9 @@ class TextBuffer(ITextBuffer):
 
     def get_line(self, row: int) -> str:
         return self._lines[row].to_py()
+    
+    def get_line_obj(self, row):
+        return self._lines[row]
 
     def set_line(self, row: int, text: str) -> None:
         self._lines[row] = MyString(text)
