@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from .interfaces import IRenderTarget, IRenderer
+from .framework import BaseView
 
-
-class EditorView(IRenderer):
+class EditorView(BaseView):
     """Только отрисовка; состояние скролла хранится здесь."""
 
-    def __init__(self, target: IRenderTarget) -> None:
+    def __init__(self, target) -> None:
         self.target = target
         self._top = 0
         self._left = 0

@@ -3,6 +3,53 @@ from __future__ import annotations
 import curses
 import sys
 
+
+from .framework import TuiAppBuilder
+from .buffer import TextBuffer
+from .commands import create_default_registry
+from .controller import EditorController
+from .file_service import FileService
+from .model import EditorModel
+from .search import SearchEngine
+from .undo import UndoManager
+from .view import EditorView
+
+def run() -> None:
+    args = sys.argv[1:]
+    filename = args[0] if args else None
+
+    # 1. Создаем Модель и загружаем файл (если есть)
+    model = EditorModel(
+        buffer=TextBuffer(),
+        file_service=FileService(encoding="latin-1"),
+        undo=UndoManager(),
+        search=SearchEngine(),
+    )
+    if filename:
+        try:
+            model.open_file(filename)
+        except Exception as exc:
+            model.message = f"Open error: {exc}"
+
+    # 2. Создаем реестр команд
+    registry = create_default_registry()
+
+    # 3. Собираем приложение через Строителя (Паттерн Builder)
+    builder = TuiAppBuilder()
+    app = (builder
+           .set_model(model)
+           .set_view(EditorView)
+           .set_controller(EditorController, registry=registry)
+           .build())
+
+    # 4. Запускаем
+    app.run()
+
+if __name__ == "__main__":
+    run()
+
+
+"""
 from .buffer import TextBuffer
 from .commands import create_default_registry
 from .controller import EditorController
@@ -47,3 +94,6 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
+
+
+"""

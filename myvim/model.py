@@ -9,22 +9,26 @@ from .mystring import MyString, SyntaxHighlightDecorator
 from .search import SearchEngine
 from .undo import UndoManager
 from .yank import YankBuffer
+from .framework import BaseModel
 
 
 def _is_word_char(ch: str) -> bool:
     return ch.isalnum() or ch == "_"
 
 
-class EditorModel:
+class EditorModel(BaseModel):
     """Фасад: единый API редактирования для контроллера."""
 
-    def __init__(
-        self,
-        buffer: ITextBuffer | None = None,
-        file_service: IFileService | None = None,
-        undo: IUndoService | None = None,
-        search: ISearchService | None = None,
-    ) -> None:
+    # def __init__(
+    #     self,
+    #     buffer: ITextBuffer | None = None,
+    #     file_service: IFileService | None = None,
+    #     undo: IUndoService | None = None,
+    #     search: ISearchService | None = None,
+    # ) -> None:
+    def __init__(self, buffer=None, file_service=None, undo=None, search=None):
+        super().__init__() # <-- Вызываем конструктор родителя (создаст self.message)
+        
         # DIP: зависимости приходят извне (или дефолты)
         self.buffer: ITextBuffer = buffer or TextBuffer()
         self.file_service: IFileService = file_service or FileService()

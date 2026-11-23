@@ -6,6 +6,7 @@ from enum import Enum
 from .commands import CommandContext, CommandRegistry
 from .interfaces import IInput, IRenderer
 from .history import CommandHistory
+from .framework import BaseController
 
 class Mode(Enum):
     NORMAL = "NORMAL"
@@ -15,7 +16,7 @@ class Mode(Enum):
     HELP = "HELP"
 
 
-class EditorController:
+class EditorController(BaseController):
     def __init__(
         self,
         model,
